@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: Template
+labels:
+  template: jdk-maven-template
+  image: jdk-maven
+metadata:
+  name: jdk-maven-with-pip
+  annotations:
+    openshift.io/scc: priviliged
+objects:
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    name: jdk-maven-with-pip
+  spec:
+    securityContext:
+      runAsUser: ${{RUN_USER}}
+    containers:
+    - command:
+        - "/bin/bash"
+        - "-c"
+        - "while true; do echo hello; sleep 10;done"
+      image: docker-registry.default.svc:5000/${OC_NAMESPACE}/jdk-maven@${IMAGE_SHA}
+      name: jdk-maven
+      resources:
+            limits:
+              memory: 2Gi
+            requests:
+              memory: 1Gi
+parameters:
+- description: a unique build identifier
+  name: BUILD_ID
+  value: first
+  required: true
+- name: IMAGE_SHA
+  required: true
+  value: sha256:20cad8db1c19ad9680e5b841f2b6f0c30663b2441c479d964ee1ffa885b6eb43
+- name: RUN_USER
+  required: true
+  value: "1000"
+- name: OC_NAMESPACE
+  required: true
+  value: dk0905-a

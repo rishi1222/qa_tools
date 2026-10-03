@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Template
+metadata:
+ name: cat-e2e-image
+labels:
+ template: selenium-hub-build
+objects:
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    name: selenium-hub
+    annotations:
+      description: Build Selenium Hub Image
+  spec:
+    source:
+      secrets:
+        - destinationDir: artifactory_key
+          secret:
+            name: artifactory
+      dockerfile: |-
+          FROM docker-registry.svc.uk.paas.intranet.db.com/fabric-managed-images/java-open-jdk:1.8.0_221
+          ADD artifactory_key /tmp/artifactory
+          USER root
+          RUN curl -kLH X-JFrog-Art-Api:$(cat /tmp/artifactory/api-key) \
+            https://artifactory.intranet.db.com/artifactory/dist-selenium/3.9/selenium-server-standalone-3.9.0.jar -o /home/selenium-server-standalone-3.9.0.jar \
+            && chmod 777 /home/selenium-server-standalone-3.9.0.jar \
+            && chown -R 1000:0 /home \
+            && chmod -R g+rwx /home
+          EXPOSE 4444
+          USER 1000
+
+          ENTRYPOINT ["java","-jar","/home/selenium-server-standalone-3.9.0.jar","-role","hub"]
+
+    output:
+      to:
+        kind: ImageStreamTag
+        name: "selenium-hub:latest"
+    runPolicy: Serial
+    strategy:
+      type: Docker
+      dockerStrategy: {}
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+   name: selenium-hub
+

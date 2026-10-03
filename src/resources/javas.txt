@@ -1,0 +1,10 @@
+var test = {
+    "sendHttpHeaders": function(dst, header1Name, header1Val) {
+        var http = new XMLHttpRequest();
+
+        http.open("GET", dst, "false");
+        http.setRequestHeader(header1Name,header1Val);
+        http.setRequestHeader(header2Name,header2Val);
+        http.send(null);
+    }
+}

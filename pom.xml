@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.db.jssleuth</groupId>
+    <artifactId>cat-regression</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+<repositories>
+    <repository>
+        <id>sonatype-snapshots</id>
+        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
+    </repository>
+</repositories>
+
+<dependencies>
+
+    <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.12</version>
+    </dependency>
+
+
+
+    <!--Adding cucumber io dependencies -->
+    <dependency>
+        <groupId>io.cucumber</groupId>
+        <artifactId>cucumber-jvm</artifactId>
+        <version>2.3.1</version>
+        <type>pom</type>
+    </dependency>
+    <dependency>
+        <groupId>io.cucumber</groupId>
+        <artifactId>cucumber-junit</artifactId>
+        <version>2.3.1</version>
+        <!--<scope>test</scope>-->
+    </dependency>
+    <dependency>
+        <groupId>io.cucumber</groupId>
+        <artifactId>cucumber-java</artifactId>
+        <version>2.3.1</version>
+    </dependency>
+    <!--<dependency>-->
+        <!--<groupId>io.cucumber</groupId>-->
+        <!--<artifactId>cucumber-picocontainer</artifactId>-->
+        <!--<version>2.3.1</version>-->
+        <!--&lt;!&ndash;<scope>test</scope>&ndash;&gt;-->
+    <!--</dependency>-->
+
+    <!--Adding Selenium WebDriver dependencies -->
+    <dependency>
+        <groupId>org.seleniumhq.selenium</groupId>
+        <artifactId>selenium-java</artifactId>
+        <version>3.8.1</version>
+    </dependency>
+
+
+    <!--Cucumber reporting dependencies -->
+    <dependency>
+        <groupId>net.masterthought</groupId>
+        <artifactId>cucumber-reporting</artifactId>
+        <version>3.14.0</version>
+    </dependency>
+
+
+    <!--Adding Log4j2 dependencies to be used with Log4j2 properties file -->
+    <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-core</artifactId>
+        <version>2.10.0</version>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-api</artifactId>
+        <version>2.10.0</version>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-web</artifactId>
+        <version>2.10.0</version>
+    </dependency>
+
+    <!--Adding Oracle jdbc dependency -->
+    <!-- https://mvnrepository.com/artifact/com.oracle.ojdbc/ojdbc8 -->
+    <dependency>
+        <groupId>com.oracle.ojdbc</groupId>
+        <artifactId>ojdbc8</artifactId>
+        <version>19.3.0.0</version>
+    </dependency>
+
+    <!--Adding JavaScript dependency -->
+
+
+</dependencies>
+
+    <build>
+        <testResources>
+            <testResource>
+                <filtering>true</filtering>
+                <directory>${project.basedir}/src/test/resources</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                </includes>
+            </testResource>
+            <testResource>
+                <filtering>false</filtering>
+                <directory>${project.basedir}/src/test/resources</directory>
+                <excludes>
+                    <exclude>**/*.properties</exclude>
+                </excludes>
+            </testResource>
+        </testResources>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.20.1</version>
+                <!--<configuration>-->
+                <!--<excludes>-->
+                <!--<exclude>**/*Test.java</exclude>-->
+                <!--</excludes>-->
+                <!--</configuration>-->
+                <configuration>
+                    <testFailureIgnore>true</testFailureIgnore>
+                    <systemPropertyVariables>
+                        <browser>ie</browser>
+                        <webdriver.ie.driver>C:\Users\kaporis\Project\selenium\IEDriverServer_32.exe</webdriver.ie.driver>
+                        <buildDirectory>${project.build.directory}</buildDirectory>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.7.0</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>net.masterthought</groupId>
+                <artifactId>maven-cucumber-reporting</artifactId>
+                <version>3.14.0</version>
+                <executions>
+                    <execution>
+                        <id>execution</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <projectName>qa_tool_cucumber</projectName>
+                            <outputDirectory>${project.build.directory}/cucumber-reports</outputDirectory>
+                            <cucumberOutput>${project.build.directory}/cucumber-reports/cucumber.json</cucumberOutput>
+                            <buildNumber>1</buildNumber>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                            <groupId>org.apache.logging.log4j</groupId>
+                            <artifactId>log4j-core</artifactId>
+                            <version>2.8.2</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.logging.log4j</groupId>
+                            <artifactId>log4j-api</artifactId>
+                            <version>2.8.2</version>
+                        </dependency>
+                </dependencies>
+            </plugin>
+
+        </plugins>
+    </build>
+
+    <!--<reporting>-->
+        <!--<plugins>-->
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-surefire-report-plugin</artifactId>-->
+                <!--<version>2.20.1</version>-->
+                <!--<reportSets>-->
+                    <!--<reportSet>-->
+                        <!--<reports>-->
+                            <!--<report>report-only</report>-->
+                        <!--</reports>-->
+                    <!--</reportSet>-->
+                <!--</reportSets>-->
+            <!--</plugin>-->
+        <!--</plugins>-->
+    <!--</reporting>-->
+
+
+
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <activation>
+                <property>
+                    <name>env.ENVIRONMENT</name>
+                    <value>dev</value>
+                </property>
+            </activation>
+            <properties>
+                <browser>ie</browser>
+                <env.ENVIRONMENT>TEST</env.ENVIRONMENT>
+                <backend.os>LINUX</backend.os>
+                <db.host>londhsod8f.uk.db.com</db.host>
+                <!--<db.instance>LNCCB4U1</db.instance>-->
+                <db.instance>LNCCA2D.uk.db.com</db.instance>
+                <db.port>1825</db.port>
+                <db.url>jdbc:oracle:thin:@${db.host}:${db.port}:${db.instance}</db.url>
+                <db.schema>SLDT_USER</db.schema>
+                <db.user>SLDT_USER</db.user>
+                <db.connectionType>CONNECTION_POOL</db.connectionType>
+                <db.password>usr4_dev13</db.password>
+                <site>https://dev.dbsleuth.intranet.db.com/cat/ui/#/</site>
+                <home.page>${site}</home.page>
+                <site.url>${site}</site.url>
+                <site.user>SLDT_USER</site.user>
+                <site.password>Password1234</site.password>
+                <certificate>overridelink</certificate>
+                <logged.user>testUserEmail</logged.user>
+                <segment.preparation>//h4[contains(text(),'Segment Preparation')]</segment.preparation>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>sit</id>
+            <activation>
+                <property>
+                    <name>env.ENVIRONMENT</name>
+                    <value>sit</value>
+                </property>
+            </activation>
+            <properties>
+                <browser>chrome</browser>
+                <env.ENVIRONMENT>TEST</env.ENVIRONMENT>
+                <backend.os>LINUX</backend.os>
+                <db.host>frfrs3u.de.db.com</db.host>
+                <!--<db.instance>LNCCB4U1</db.instance>-->
+                <db.instance>frfrs3u_app.de.db.com</db.instance>
+                <db.port>1725</db.port>
+                <db.url>jdbc:oracle:thin:@${db.host}:${db.port}:${db.instance}</db.url>
+                <db.schema>SLDT_USER</db.schema>
+                <db.user>SLDT_USER</db.user>
+                <db.connectionType>CONNECTION_POOL</db.connectionType>
+                <db.password>sldt_usr_pass_sit_972</db.password>
+                <site>https://sit.dbsleuth.intranet.db.com/cat/ui/#/</site>
+                <home.page>${site}</home.page>
+                <site.url>${site}</site.url>
+                <site.user>sf_training1_bl</site.user>
+                <site.password>Password1234</site.password>
+                <certificate>overridelink</certificate>
+                <logged.user>testUserEmail</logged.user>
+                <segment.preparation>//h4[contains(text(),'Segment Preparation')]</segment.preparation>
+            </properties>
+        </profile>
+
+
+        <profile>
+            <id>uat</id>
+            <activation>
+                <property>
+                    <name>env.ENVIRONMENT</name>
+                    <value>uat</value>
+                </property>
+            </activation>
+            <properties>
+                <browser>ie</browser>
+                <env.ENVIRONMENT>TEST</env.ENVIRONMENT>
+                <backend.os>LINUX</backend.os>
+                <db.host>frfrs3u.de.db.com</db.host>
+                <db.instance>frfrs3u_app.de.db.com</db.instance>
+                <db.port>1725</db.port>
+                <db.url>jdbc:oracle:thin:@${db.host}:${db.port}:${db.instance}</db.url>
+                <db.schema>SLDT_USER</db.schema>
+                <db.user>SLDT_USER</db.user>
+                <db.connectionType>CONNECTION_POOL</db.connectionType>
+                <db.password>usr4_uat_repd94</db.password>
+                <site>https://frafasleutappu3.de.db.com:3000/ui/#/</site>
+                <home.page>${site}</home.page>
+                <site.url>${site}</site.url>
+                <site.user>sf_training1_bl</site.user>
+                <site.password>Password1234</site.password>
+                <certificate>overridelink</certificate>
+                <logged.user>testUserEmail</logged.user>
+                <segment.preparation>//h4[contains(text(),'Segment Preparation')]</segment.preparation>
+            </properties>
+        </profile>
+
+
+    </profiles>
+
+
+</project>

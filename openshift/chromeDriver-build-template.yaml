@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: Template
+metadata:
+ name: cat-e2e-image
+labels:
+ template: selenium-chrome-build
+objects:
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    name: selenium-chrome
+    annotations:
+      description: Build Selenium Chrome Image
+  spec:
+    source:
+      secrets:
+        - destinationDir: artifactory_key
+          secret:
+            name: artifactory
+        - destinationDir: artifactory_setting
+          secret:
+            name: artifactory-mvn-setting
+      dockerfile: |-
+          FROM docker-registry.svc.uk.paas.intranet.db.com/fabric-managed-images/rhel7:7.5_20180719
+
+          ENV CHROME_VERSION=71.0.3578.98-1
+          USER root
+
+          ADD artifactory_key /tmp/artifactory
+
+          # Install Google Chrome
+          RUN yum downgrade -y systemd-libs-219-57.el7.x86_64 systemd-219-57.el7.x86_64 \
+          && mkdir chrome/ \
+          && curl -LH "X-JFrog-Art-API: `cat /tmp/artifactory/api-key`" https://artifactory.intranet.db.com/artifactory/dist-public-local/chrome/${CHROME_VERSION}/google-chrome-stable-${CHROME_VERSION}.x86_64.rpm -o chrome/google-chrome-stable_current_x86_64.rpm \
+          && yum install -y chrome/google-chrome-stable_current_x86_64.rpm \
+          && rm -rf chrome/ \
+          # Cleanup
+          && yum -y clean all \
+          && rm -rf /var/cache/yum \
+          # Create user and fix permissions \
+          && echo ${HOME} \
+          && chown -R 1000:0 ${HOME} \
+          && chmod -R g+rwx ${HOME}
+
+
+          # Set up Chromedriver Environment variables
+          ENV CHROMEDRIVER_VERSION=2.32
+          ENV CHROMEDRIVER_DIR=/usr/local/bin
+
+
+          # Download and install Chromedriver
+          RUN curl -LH "X-JFrog-Art-API: `cat /tmp/artifactory/api-key`" https://artifactory.intranet.db.com/artifactory/dist-public-local/chromedriver/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip -o /tmp/driver.zip
+          RUN unzip /tmp/driver.zip  \
+          && mv chromedriver /usr/local/bin/ \
+          && chown -R 1000:0 /usr/local/bin/chromedriver \
+          && chmod -R g+rwx /usr/local/bin/chromedriver
+
+          # Put Chromedriver into the PATH
+          ENV PATH $CHROMEDRIVER_DIR:$PATH
+
+          USER 1000
+          ENTRYPOINT ["chromedriver"]
+          CMD ["--port=4444"]
+    output:
+      to:
+        kind: ImageStreamTag
+        name: "selenium-chrome:latest"
+    runPolicy: Serial
+    strategy:
+      type: Docker
+      dockerStrategy: {}
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+   name: selenium-chrome
+

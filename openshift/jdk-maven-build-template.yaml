@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: Template
+metadata:
+ name: cat-e2e-image
+labels:
+ template: jdk-maven-build
+objects:
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    name: jdk-maven
+    annotations:
+      description: Build Selenium Hub Image
+  spec:
+    source:
+      secrets:
+        - destinationDir: artifactory_key
+          secret:
+            name: artifactory
+        - destinationDir: artifactory_setting
+          secret:
+            name: artifactory-mvn-setting
+      dockerfile: |-
+          FROM docker-registry.svc.uk.paas.intranet.db.com/fabric-managed-images/java-open-jdk:1.8.0_221
+          ADD artifactory_key /tmp/artifactory
+          USER root
+          RUN yum -y install --setopt=tsflags=nodocs maven \
+          && yum clean all -y
+
+          COPY artifactory_setting/settings.xml /usr/share/maven/conf/settings.xml
+          RUN chmod 777 /usr/share/maven/conf/settings.xml
+          USER 1000
+          ENTRYPOINT []
+
+    output:
+      to:
+        kind: ImageStreamTag
+        name: "jdk-maven:latest"
+    runPolicy: Serial
+    strategy:
+      type: Docker
+      dockerStrategy: {}
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+   name: jdk-maven
+

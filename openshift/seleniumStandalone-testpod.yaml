@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: Template
+labels:
+  template: selenium-hub-template
+  image: selenium-hub
+metadata:
+  name: selenium-hub-with-pip
+  annotations:
+    openshift.io/scc: priviliged
+objects:
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    name: selenium-hub-with-pip
+  spec:
+    securityContext:
+      runAsUser: ${{RUN_USER}}
+    containers:
+    - image: docker-registry.default.svc:5000/${OC_NAMESPACE}/selenium-hub@${IMAGE_SHA}
+      name: selenium-hub
+      ports:
+          - containerPort: 4444
+      livenessProbe:
+          httpGet:
+            path: /wd/hub/status
+            port: 4444
+          initialDelaySeconds: 120
+          timeoutSeconds: 3
+          periodSeconds: 30
+          successThreshold: 1
+          failureThreshold: 5
+      readinessProbe:
+          httpGet:
+            path: /wd/hub/status
+            port: 4444
+          initialDelaySeconds: 120
+          timeoutSeconds: 3
+          periodSeconds: 30
+          successThreshold: 1
+          failureThreshold: 5
+parameters:
+- description: a unique build identifier
+  name: BUILD_ID
+  value: first
+  required: true
+- name: IMAGE_SHA
+  required: true
+  value: sha256:8c0981ddee4703920d6e0a38b36e89e3d14f29307709e8deea7ef77c57e70e58
+- name: RUN_USER
+  required: true
+  value: "1000"
+- name: OC_NAMESPACE
+  required: true
+  value: dk0905-a
